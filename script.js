@@ -55,7 +55,7 @@
     hax.sleepDiv = () => getById("start_sleeping_div");
     hax.sleep = () => tryClick(hax.sleepDiv());
     hax.fastTravelOptions = () => getByClass("fast_travel_name");
-    hax.fastTravelToFight = () => hax.fastTravelOptions().find(o => innerHas(o, hax.lastCombatLocation));
+    hax.fastTravelToFight = () => [...hax.fastTravelOptions()].find(o => innerHas(o, hax.lastCombatLocation));
     hax.returnToFight = () => tryClick(hax.fastTravelToFight());
     // intervals/automation
     // rest when "beat" when fighting

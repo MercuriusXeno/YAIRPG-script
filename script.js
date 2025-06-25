@@ -69,9 +69,9 @@
                 hax.sleep();
             }
         }
-    }, 100);
+    }, 50);
 
-    const tryWaking = setInterval(() => hax.isReadyToWakeUp() && hax.wakeUp(), 1000);
+    const tryWaking = setInterval(() => hax.isReadyToWakeUp() && hax.wakeUp(), 50);
 
     const tryReturningToFight = setInterval(() => {
         if (hax.isDoneResting()) {
@@ -83,7 +83,7 @@
                 hax.openFastTravelMenu();
             }
         }
-    });
+    }, 50);
 
     const trackMe = setInterval(() => {
         if (hax.lastLocation != hax.location() && !hax.isMovedAutomatically) {
@@ -101,5 +101,5 @@
         if (hax.isMovedAutomatically) {
             hax.isMovedAutomatically = false;
         }
-    }, 100);
+    }, 50);
 })();

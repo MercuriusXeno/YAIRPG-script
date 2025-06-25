@@ -23,9 +23,10 @@
     const getById = (s) => document.getElementById(s);
     const getByClass = (s) => document.querySelectorAll(`.${s}`);
     const findAnyAttribute = (s) => document.querySelectorAll(`[${s}]`);
-    const innerHas = (e, s) => e.innerHTML.includes(s);
-    const classHas = (e, s) => e.className.includes(s);
+    const innerHas = (e, s) => e && e.innerHTML.includes(s);
+    const classHas = (e, s) => e && e.className.includes(s);
     const tryClick = (e) => e && e.click();
+    const findElem = (a, s) => [...a].find(r => innerHas(r, s));
     // main lambda functions we use for logic
     hax.healthSpan = () => getById("character_healthbar_current");
     hax.parseHp = () => hax.healthSpan().style.width.replace("%", "") / 100;
@@ -36,26 +37,26 @@
     hax.isBeat = () => hax.isRestingWhenBeat && hax.parseStam() == 0;
     hax.isAtHome = () => getByClass("location_bed_icon").length > 0;
     hax.actionStatusDiv = () => getById("action_status_div");
-    hax.isSleeping = () => hax.actionStatusDiv() && innerHas(hax.actionStatusDiv(),"Sleeping");
+    hax.isSleeping = () => innerHas(hax.actionStatusDiv(),"Sleeping");
     hax.wakeButton = () => getById("action_end_div");
     hax.wakeUp = () => tryClick(hax.wakeButton());
     hax.combatDiv = () => getById("combat_div");
     hax.isFighting = () => hax.combatDiv() && hax.combatDiv().style.display != "none";
     hax.navigationOptions = () => findAnyAttribute("data-travel");
-    hax.quickReturnOption = () => [...hax.navigationOptions()].find(n => innerHas(n, "Quick return"));
+    hax.quickReturnOption = () => findElem(hax.navigationOptions(), "Quick return");
     hax.quickReturn = () => tryClick(hax.quickReturnOption());
     hax.travelRoots = () => getByClass("choice_travel");
-    hax.fastTravelRoot = () => hax.travelRoots().length > 0 && [...hax.travelRoots()].find(r => innerHas(r, "Fast travel"));
-    hax.isFastTravelRootExpanded = () => hax.fastTravelRoot() && classHas(hax.fastTravelRoot(), "location_choice_dropdown_expanded");
+    hax.fastTravelRoot = () => findElem(hax.travelRoots(), "Fast travel");
+    hax.isFastTravelRootExpanded = () => classHas(hax.fastTravelRoot(), "location_choice_dropdown_expanded");
     hax.openFastTravelMenu = () => tryClick(hax.fastTravelRoot());
     hax.favoriteIconSpan = () => getById("location_icon_span");
-    hax.isFavorited = () => !innerHas(hax.favoriteIconSpan(),"star_border");
+    hax.isFavorited = () => !innerHas(hax.favoriteIconSpan(), "star_border");
     hax.isReadyToWakeUp = () => hax.isAtHome() && hax.isSleeping() && hax.isMaxed();
     hax.isDoneResting = () => hax.isAtHome() && !hax.isSleeping() && hax.isMaxed();
     hax.sleepDiv = () => getById("start_sleeping_div");
     hax.sleep = () => tryClick(hax.sleepDiv());
     hax.fastTravelOptions = () => getByClass("fast_travel_name");
-    hax.fastTravelToFight = () => [...hax.fastTravelOptions()].find(o => innerHas(o, hax.lastCombatLocation));
+    hax.fastTravelToFight = () => findElem(hax.fastTravelOptions(), hax.lastCombatLocation);
     hax.returnToFight = () => tryClick(hax.fastTravelToFight());
     // intervals/automation
     // rest when "beat" when fighting

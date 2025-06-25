@@ -89,7 +89,7 @@
     const trackMe = setInterval(() => {
         if (hax.lastLocation != hax.location() && !hax.isMovedAutomatically) {
             hax.lastLocation = hax.location();
-            console.log(`player moved to ${hax.lastLocation}`);
+            // console.log(`player moved to ${hax.lastLocation}`);
         }
         if (hax.isFighting()) {
             if (!hax.isFavorited()) {

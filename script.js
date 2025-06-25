@@ -79,6 +79,7 @@
             // open the fast travel menu if it isn't already
             if (hax.isFastTravelRootExpanded()) {
                 hax.returnToFight();
+                hax.isMovedAutomatically = true;
             }
             else {
                 hax.openFastTravelMenu();

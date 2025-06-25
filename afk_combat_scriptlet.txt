@@ -1,1 +1,1 @@
-javascript:(function(){var d=document,s=d.createElement('script');s.src='https://raw.githubusercontent.com/MercuriusXeno/YAIRPG-script/main/afk_combat.min.js';d.body.appendChild(s);})();
+javascript:(function(){var d=document,s=d.createElement('script');s.src='https://mercuriusxeno.github.io/YAIRPG-script/afk_combat.min.js';d.body.appendChild(s);})();

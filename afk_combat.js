@@ -100,7 +100,7 @@
 
     // intervals/automation
     // rest when "beat" when fighting
-    setInterval(() => {
+    const tryResting = setInterval(() => {
         if (!hax.isEnabled()) return;
 
         if (hax.isBeat() && hax.isRestingWhenBeat) {
@@ -112,9 +112,9 @@
         }
     }, 50);
 
-    setInterval(() => hax.isEnabled() && hax.isReadyToWakeUp() && hax.wakeUp(), 50);
+    const tryWaking = setInterval(() => hax.isEnabled() && hax.isReadyToWakeUp() && hax.wakeUp(), 50);
 
-    setInterval(() => {
+    const tryReturningToFight =setInterval(() => {
         if (!hax.isEnabled()) return;
         if (hax.isDoneResting()) {
             if (hax.isFastTravelRootExpanded()) {
@@ -125,7 +125,7 @@
         }
     }, 50);
 
-    setInterval(() => {
+    const trackMe = setInterval(() => {
         if (!hax.isEnabled()) return;
         if (hax.isFighting()) {
             if (hax.lastLocation != hax.location()) {

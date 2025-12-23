@@ -1,3 +1,14 @@
+// ==UserScript==
+// @name         Auto-Farm YAIRPG
+// @namespace    http://tampermonkey.net/
+// @version      2025-06-25
+// @description  When stam hits zero, rest. When resting, if done, resume farming. Farming returns to wherever your stam hit zero or you died.
+// @author       You
+// @match        https://miktaew.github.io/yet-another-idle-rpg/
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=github.io
+// @grant        none
+// ==/UserScript==
+
 (function () {
     'use strict';
     // you can change these settings if you want

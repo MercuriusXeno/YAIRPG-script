@@ -51,28 +51,29 @@
         return !cb || cb.checked; // default ON until checkbox exists
     };
 
-    hax.getFarmLocationLabel = () => `Automatically return to [${hax.lastLocation ?? "Awaiting Fight"}]`;
+    hax.getFarmLocationLabel = () => `Auto-Return to [${hax.lastLocation ?? "Awaiting Fight"}]`;
     hax.createCheckBox = (cbId, lbId, labelFunc, index) => {
         const bottom = hax.bottomPanelDiv();
         if (!bottom || getById(cbId)) return;
 
+        const div = document.createElement("div");
+        div.id = `${cbId}Div`;        
+        div.classList.add("sl_button");
+
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.id = cbId;
-        cb.classList.add("game_info");
         cb.checked = false;
 
         const label = document.createElement("label");
         label.id = lbId;
         label.htmlFor = cb.id;
-        label.classList.add("game_info");
         label.textContent = labelFunc();
 
-        const wrap = document.createElement("span");
-        wrap.appendChild(cb);
-        wrap.appendChild(label);
+        div.appendChild(cb);
+        div.appendChild(label);
 
-        addElemAt(bottom, wrap, index);
+        addElemAt(bottom, div, index);
     };
     hax.addEnableFarmToggle = () => hax.createCheckBox(autoReturnCheckBox, autoReturnLabel, 
             hax.getFarmLocationLabel, 7);
@@ -156,11 +157,11 @@
     }, 50);
 
     const trackMe = setInterval(() => {
-        if (!hax.isEnabled()) return;
         if (hax.isFighting()) {
             if (hax.lastLocation != hax.location()) {
                 hax.setLocation(hax.location());
             }
+            if (!hax.isEnabled()) return;
             if (!hax.isFavorited()) {
                 hax.favoriteIconSpan().click();
             }

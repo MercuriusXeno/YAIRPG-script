@@ -12,11 +12,7 @@
 (function () {
     'use strict';
     // you can change these settings if you want
-    window.hax = {
-        isRestingWhenBeat: true, // rest when stam hits zero, turn this off to level persistence
-        lastLocation: null,
-        lastCombatLocation: null
-    };
+    window.hax = { lastLocation: null, lastCombatLocation: null };
     const hax = window.hax;
 
     const getById = (s) => document.getElementById(s);
@@ -34,76 +30,105 @@
         else a.insertBefore(elem, kids[i]);
     };
 
+    // dom constants
+    const bottomPanelDiv = "bottom_panel_div";
+    const autoReturnCheckBox = "is_auto_returning_to_fights";
+    const autoReturnLabel = "return_to_fights_label";
+    const restWhenTiredCheckBox = "is_resting_when_tired";
+    const restWhenTiredLabel = "rests_when_tired_label";
 
-    hax.bottomPanelDiv = () => getById("bottom_panel_div");
-    hax.isAutoReturnToFightCheckBox = () => getById("is_auto_returning_to_fights");
+    hax.bottomPanelDiv = () => getById(bottomPanelDiv);
+    hax.autoFarmCheckBox = () => getById(autoReturnCheckBox);
+    hax.autoFarmLocationLabel = () => getById(autoReturnLabel);
     hax.isEnabled = () => {
-        const cb = hax.isAutoReturnToFightCheckBox();
+        const cb = hax.autoFarmCheckBox();
+        return !cb || cb.checked; // default ON until checkbox exists
+    };
+    hax.autoRestCheckBox = () => getById(restWhenTiredCheckBox);
+    hax.autoRestLabel = () => getById(restWhenTiredLabel);
+    hax.isRestingWhenTired = () => {
+        const cb = hax.autoRestCheckBox();
         return !cb || cb.checked; // default ON until checkbox exists
     };
 
-    const addToggle = () => {
+    hax.getFarmLocationLabel = () => `(${hax.lastLocation ?? "Nowhere?"})`;
+    hax.createCheckBox = (cbId, lbId, labelFunc, index) => {
         const bottom = hax.bottomPanelDiv();
-        if (!bottom || hax.isAutoReturnToFightCheckBox()) return;
+        if (!bottom || getById(cbId)) return;
 
         const cb = document.createElement("input");
         cb.type = "checkbox";
-        cb.id = "is_auto_returning_to_fights";
-        cb.checked = true;
+        cb.id = cbId;
+        cb.checked = false;
 
         const label = document.createElement("label");
-        label.id = "return_to_fights_label";
+        label.id = lbId;
         label.htmlFor = cb.id;
-        label.textContent = " Auto-farm";
+        label.textContent = labelFunc();
 
         const wrap = document.createElement("span");
         wrap.appendChild(cb);
         wrap.appendChild(label);
 
-        addElemAt(bottom, wrap, 2);
+        addElemAt(bottom, wrap, index);
     };
+    hax.addEnableFarmToggle = () => hax.createCheckBox(autoReturnCheckBox, autoReturnLabel, 
+            hax.getFarmLocationLabel, 2);
+    hax.addEnableTiredResting = () => hax.createCheckBox(restWhenTiredCheckBox, restWhenTiredLabel, 
+            () => " rest when tired", 2);
 
     // may not need interval here... test this
-    addToggle();
+    hax.addEnableFarmToggle();
     // setInterval(addToggle, 500);
 
+    hax.actionStatusDiv = () => getById("action_status_div");
+    hax.wakeButton = () => getById("action_end_div");
+    hax.combatDiv = () => getById("combat_div");
+    hax.location = () => getById("location_name_span").innerHTML;
+    hax.setLocation = () => {
+        hax.lastLocation = hax.location();
+    };
+
+    // health and stamina parsing
     hax.healthSpan = () => getById("character_healthbar_current");
-    hax.parseHp = () => hax.healthSpan().style.width.replace("%", "") / 100;
     hax.stamSpan = () => getById("character_stamina_bar_current");
+    hax.parseHp = () => hax.healthSpan().style.width.replace("%", "") / 100;
     hax.parseStam = () => hax.stamSpan().style.width.replace("%", "") / 100;
     hax.isMaxed = () => hax.parseStam() == 1 && hax.parseHp() == 1;
-    hax.location = () => getById("location_name_span").innerHTML;
-    hax.isBeat = () => hax.isRestingWhenBeat && hax.parseStam() == 0;
+    hax.isTired = () => hax.isRestingWhenTired() && hax.parseStam() == 0;
+
+    // fast travel controls
+    hax.favoriteIconSpan = () => getById("location_icon_span");
+    hax.fastTravelOptions = () => getByClass("fast_travel_name");
     hax.isAtHome = () => getByClass("location_bed_icon").length > 0;
-    hax.actionStatusDiv = () => getById("action_status_div");
-    hax.isSleeping = () => innerHas(hax.actionStatusDiv(), "Sleeping");
-    hax.wakeButton = () => getById("action_end_div");
-    hax.wakeUp = () => tryClick(hax.wakeButton());
-    hax.combatDiv = () => getById("combat_div");
-    hax.isFighting = () => hax.combatDiv() && hax.combatDiv().style.display != "none";
+    hax.travelRoots = () => getByClass("choice_travel");
     hax.navigationOptions = () => findAnyAttribute("data-travel");
     hax.quickReturnOption = () => findElem(hax.navigationOptions(), "Quick return");
     hax.quickReturn = () => tryClick(hax.quickReturnOption());
-    hax.travelRoots = () => getByClass("choice_travel");
     hax.fastTravelRoot = () => findElem(hax.travelRoots(), "Fast travel");
     hax.isFastTravelRootExpanded = () => classHas(hax.fastTravelRoot(), "location_choice_dropdown_expanded");
     hax.openFastTravelMenu = () => tryClick(hax.fastTravelRoot());
-    hax.favoriteIconSpan = () => getById("location_icon_span");
     hax.isFavorited = () => !innerHas(hax.favoriteIconSpan(), "star_border");
+
+    // resting
+    hax.sleepDiv = () => getById("start_sleeping_div");
+    hax.isSleeping = () => innerHas(hax.actionStatusDiv(), "Sleeping");
+    hax.wakeUp = () => tryClick(hax.wakeButton());
+    hax.sleep = () => tryClick(hax.sleepDiv());
     hax.isReadyToWakeUp = () => hax.isAtHome() && hax.isSleeping() && hax.isMaxed();
     hax.isDoneResting = () => hax.isAtHome() && !hax.isSleeping() && hax.isMaxed();
-    hax.sleepDiv = () => getById("start_sleeping_div");
-    hax.sleep = () => tryClick(hax.sleepDiv());
-    hax.fastTravelOptions = () => getByClass("fast_travel_name");
+
+    // fight logic
+    hax.isFighting = () => hax.combatDiv() && hax.combatDiv().style.display != "none";
     hax.fastTravelToFight = () => findElem(hax.fastTravelOptions(), hax.lastCombatLocation);
     hax.returnToFight = () => tryClick(hax.fastTravelToFight());
 
     // intervals/automation
-    // rest when "beat" when fighting
+    // rest when tired when fighting
     const tryResting = setInterval(() => {
         if (!hax.isEnabled()) return;
 
-        if (hax.isBeat() && hax.isRestingWhenBeat) {
+        if (hax.isTired() && hax.isRestingWhenTired()) {
             if (hax.isFighting()) {
                 hax.quickReturn();
             } else if (hax.isAtHome()) {
@@ -114,7 +139,7 @@
 
     const tryWaking = setInterval(() => hax.isEnabled() && hax.isReadyToWakeUp() && hax.wakeUp(), 50);
 
-    const tryReturningToFight =setInterval(() => {
+    const tryReturningToFight = setInterval(() => {
         if (!hax.isEnabled()) return;
         if (hax.isDoneResting()) {
             if (hax.isFastTravelRootExpanded()) {
@@ -129,7 +154,7 @@
         if (!hax.isEnabled()) return;
         if (hax.isFighting()) {
             if (hax.lastLocation != hax.location()) {
-                hax.lastLocation = hax.location();
+                hax.setLocation(hax.location());
             }
             if (!hax.isFavorited()) {
                 hax.favoriteIconSpan().click();

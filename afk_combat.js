@@ -51,7 +51,7 @@
         return !cb || cb.checked; // default ON until checkbox exists
     };
 
-    hax.getFarmLocationLabel = () => `(${hax.lastLocation ?? "Nowhere?"})`;
+    hax.getFarmLocationLabel = () => `Automatically return to [${hax.lastLocation ?? "Awaiting Fight"}]`;
     hax.createCheckBox = (cbId, lbId, labelFunc, index) => {
         const bottom = hax.bottomPanelDiv();
         if (!bottom || getById(cbId)) return;
@@ -59,11 +59,13 @@
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.id = cbId;
+        cb.classList.add("game_info");
         cb.checked = false;
 
         const label = document.createElement("label");
         label.id = lbId;
         label.htmlFor = cb.id;
+        label.classList.add("game_info");
         label.textContent = labelFunc();
 
         const wrap = document.createElement("span");
@@ -73,11 +75,12 @@
         addElemAt(bottom, wrap, index);
     };
     hax.addEnableFarmToggle = () => hax.createCheckBox(autoReturnCheckBox, autoReturnLabel, 
-            hax.getFarmLocationLabel, 2);
+            hax.getFarmLocationLabel, 7);
     hax.addEnableTiredResting = () => hax.createCheckBox(restWhenTiredCheckBox, restWhenTiredLabel, 
-            () => " rest when tired", 2);
+            () => " Rest When Tired", 7);
 
     // may not need interval here... test this
+    hax.addEnableTiredResting();
     hax.addEnableFarmToggle();
     // setInterval(addToggle, 500);
 
@@ -87,6 +90,8 @@
     hax.location = () => getById("location_name_span").innerHTML;
     hax.setLocation = () => {
         hax.lastLocation = hax.location();
+        const label = getById(autoReturnLabel);
+        label.textContent = hax.getFarmLocationLabel();
     };
 
     // health and stamina parsing
